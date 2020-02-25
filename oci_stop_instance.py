@@ -15,8 +15,8 @@ def print_row(id, instance_name, status, shape, region):
 
 def request_instance():
 	try:
-		variable = raw_input('\nDigite o ID da instancia/shape que deseja parar:')
-		item = float(variable)
+		instance_id = raw_input('\nDigite o ID da instancia/shape que deseja parar:')
+		item = float(instance_id)
 		print ("A instancia de OCID {} sera parada....aguarde".format(instance_dict[item]))
 		stop_instance(instance_dict[item])
 	except KeyboardInterrupt:
