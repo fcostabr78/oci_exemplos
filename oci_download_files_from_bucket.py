@@ -10,7 +10,10 @@ def print_row(bucket, fileName):
 def create_dir(folder):
 	try:
 		os.makedirs(folder)
-	except Exception as exception:
+	except OSError, exception:
+		if exception.errno == os.errno.EEXIST:
+			pass
+	except Exception, exception:
 		raise
 
 def download_file(namespace, bucket_name, file_name):
@@ -37,7 +40,6 @@ compartmentID = os.environ.get('compartmentID')
 validate_config(config)
 
 objStgClient = oci.object_storage.ObjectStorageClient(config)
-
 buckets = objStgClient.list_buckets(namespace_name=namespace, compartment_id=compartmentID).data
 
 for bucket in buckets:
