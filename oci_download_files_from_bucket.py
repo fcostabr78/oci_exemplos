@@ -7,7 +7,8 @@ load_dotenv()
 def print_row(bucket, fileName):
     print " %-30s %-50s %-30s" % (bucket, fileName, "Downloaded")
 
-def create_dir(folder):
+def create_dir(bucket_name):
+	folder = '/home/fernando/Documentos/OCI/{}'.format(bucket_name)
 	try:
 		os.makedirs(folder)
 	except OSError, exception:
@@ -15,10 +16,10 @@ def create_dir(folder):
 			pass
 	except Exception, exception:
 		raise
+	return folder
 
 def download_file(namespace, bucket_name, file_name):
-	folder = '/home/fernando/Documentos/OCI/{}'.format(bucket_name)
-	create_dir(folder)
+	folder = create_dir(bucket_name)
 	file_path = '{}/{}'.format(folder, file_name)
 	file = objStgClient.get_object(namespace, bucket_name, file_name)
 	with open(file_path, 'wb') as f:
