@@ -21,7 +21,7 @@ def print_row(id, instance_name, status, shape, region):
 
 def request_instance():
 	try:
-		instance_id = raw_input('\nDigite o ID da instancia/shape que deseja parar:')
+		instance_id = raw_input('\nDigite o ID da instancia/shape que deseja iniciar:')
 		item = float(instance_id)
 		print ("A instancia de OCID {} sera iniciada....aguarde".format(instance_dict[item]))
 		start_instance(instance_dict[item])
