@@ -11,7 +11,7 @@ def stop_instance(ociID):
 	compute.instance_action(ociID, "SOFTSTOP")
 
 def print_row(id, instance_name, status, shape, region):
-    print " %-10s %-40s %30s %20s %20s" % (id, instance_name, shape, status, region)
+    print " %-10s %-30s %25s %20s %10s" % (id, instance_name, shape, status, region)
 
 def request_instance():
 	try:
@@ -30,7 +30,7 @@ compartmentId = os.environ.get('compartmentID')
 validate_config(config)
 
 compute = oci.core.ComputeClient(config)
-instance_list = compute.list_instances(compartmentId)
+instance_list = compute.list_instances(compartmentId, lifecycle_state = "RUNNING")
 instances = instance_list.data
 
 print("\ntotal de instancias em seu compartimento: {}\n".format(len(instances)))
@@ -39,4 +39,5 @@ for idx, instance in enumerate(instances):
 	instance_dict[idx] = instance.id
 	print_row(idx, instance.display_name, instance.lifecycle_state,	instance.shape,	instance.region)
 
-request_instance()
+if (len(instances) > 0):
+	request_instance()
