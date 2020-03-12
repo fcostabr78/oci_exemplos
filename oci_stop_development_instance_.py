@@ -1,0 +1,50 @@
+import os, oci
+from oci.config import validate_config
+from dotenv import load_dotenv
+load_dotenv()
+
+instance_dict = {}
+
+config = { "user": os.environ.get('authUserID'), "key_file": os.environ.get('ociKeyPath'), "fingerprint": os.environ.get('keyFingerPrint'), "tenancy": os.environ.get('tenancyID'), "region": "us-ashburn-1"}
+
+def stop_instance(ociID):
+	compute.instance_action(ociID, "SOFTSTOP")
+
+def print_row(id, instance_name, status, shape, region):
+    print " %-10s %-30s %25s %20s %10s" % (id, instance_name, shape, status, region)
+
+def request_instance():
+	try:
+		instance_id = raw_input('\nDigite o ID da instancia/shape que deseja parar:')
+		item = float(instance_id)
+		print ("A instancia de OCID {} sera parada....aguarde".format(instance_dict[item]))
+		stop_instance(instance_dict[item])
+	except KeyboardInterrupt:
+		print('\nPrograma abortado\n')
+	except ValueError:
+		print('\nO valor ingressado esta incorreto\n')
+	except Exception as exception:
+		print('\nOcorreu um erro: {}'.format(exception))
+
+compartmentId = os.environ.get('compartmentID')
+validate_config(config)
+
+compute = oci.core.ComputeClient(config)
+instance_list = compute.list_instances(compartmentId, lifecycle_state = "RUNNING")
+instances = instance_list.data
+
+print("\ntotal de instancias em seu compartimento em execucao: {}\n".format(len(instances)))
+
+total_dev_env = 0
+
+for idx, instance in enumerate(instances):
+    instance_dict[idx] = instance.id
+    print_row(idx, instance.display_name, instance.lifecycle_state,	instance.shape,	instance.region)
+    if (len(instance.freeform_tags) > 0 and "env" in instance.freeform_tags):
+        if (instance.freeform_tags['env'] == "DEVELOPMENT"):
+            total_dev_env += 1
+
+if (total_dev_env == 0):
+    print('\nNao ha nenhuma TAG "env" atribuida as instancias listadas acima com o valor ser "DEVELOPMENT"\n')
+else:
+	request_instance()
