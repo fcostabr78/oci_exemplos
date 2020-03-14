@@ -1,4 +1,4 @@
-import os, oci, shapes, requests, random, string
+import os, oci, requests, random, string
 from oci.config import validate_config
 from dotenv import load_dotenv
 load_dotenv()
@@ -38,7 +38,7 @@ def get_public_ips(instance):
     for vnic in vnics:
         responsenic = network.get_vnic(vnic.vnic_id)
         nicinfo = responsenic.data
-        public_ips = public_ips + nicinfo.public_ip + " "
+        public_ips = public_ips.join(nicinfo.public_ip) + " "
     return public_ips
 
 def send_data(instance):
@@ -52,7 +52,7 @@ def send_data(instance):
         "ip": get_public_ips(instance),
         "so": get_operation_system(instance)
     }
-    requests.post(url = os.environ.get('url_post_instance'), data = data) 
-
+    #requests.post(url = os.environ.get('url_post_instance'), data = data) 
+    print(get_public_ips(instance))
 for idx, instance in enumerate(instances):
 	send_data(instance)
