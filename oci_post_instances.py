@@ -52,7 +52,7 @@ def send_data(instance):
         "ip": get_public_ips(instance),
         "so": get_operation_system(instance)
     }
-    #requests.post(url = os.environ.get('url_post_instance'), data = data) 
-    print(get_public_ips(instance))
+    requests.post(url = os.environ.get('url_post_instance'), data = data) 
+
 for idx, instance in enumerate(instances):
 	send_data(instance)
