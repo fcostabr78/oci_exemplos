@@ -41,6 +41,15 @@ def get_public_ips(instance):
         public_ips = public_ips.join(nicinfo.public_ip) + " "
     return public_ips
 
+def get_environment_tagged(instance):
+    environment = ""
+    if (len(instance.freeform_tags) > 0 and "env" in instance.freeform_tags):
+        if (instance.freeform_tags['env'] == "DEVELOPMENT" or instance.freeform_tags['env'] == "PRODUCTION"):
+            environment = instance.freeform_tags['env']
+        else:
+            environment = "not tagged"
+    return environment
+
 def send_data(instance):
     data = {
         "name": instance.display_name, 
@@ -50,8 +59,11 @@ def send_data(instance):
         "snapshot": randomString(),
         "ociID": instance.id,
         "ip": get_public_ips(instance),
-        "so": get_operation_system(instance)
+        "so": get_operation_system(instance),
+        "environment": get_environment_tagged(instance)
     }
+
+    #print(data)
     requests.post(url = os.environ.get('url_post_instance'), data = data) 
 
 for idx, instance in enumerate(instances):
