@@ -5,8 +5,9 @@ from glob import glob
 from multiprocessing import Process
 from oci.config import validate_config
 
+# https://docs.python.org/3/library/multiprocessing.html
 # gerar os arquivos de teste local: truncate -s 4k exemplo{1..1000}.oracle
-# configurar o limite de arq aberto pelo SO: ulimit -n 4096
+# configurar o limite de arq aberto pelo SO: ulimit -n 6000
 
 load_dotenv()
 
