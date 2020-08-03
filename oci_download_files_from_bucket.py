@@ -60,4 +60,3 @@ for bucket in buckets:
 	object_list = objStgClient.list_objects(bucket.namespace, bucket.name)
 	for o in object_list.data.objects:
 		download_file(bucket.namespace, bucket.name, o.name)
-
