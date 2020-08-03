@@ -19,7 +19,7 @@ compartmentID = os.environ.get('compartmentID')
 local_path = '/home/fernando/Documentos/uploads/*.*'
 bucket = 'bucketLunes'
 
-def upload_to_object_storage(path):
+def upload_item(path):
     with open(path, "rb") as in_file:
         name = os.path.basename(path)
         objStgClient = oci.object_storage.ObjectStorageClient(config)
@@ -31,7 +31,7 @@ files = []
 
 for file_path in glob(local_path):
     print("Starting upload for {}".format(file_path))
-    p = Process(target=upload_to_object_storage, args=(file_path,))
+    p = Process(target=upload_item, args=(file_path,))
     p.start()
     files.append(p)
     
