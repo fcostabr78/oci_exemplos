@@ -1,31 +1,8 @@
-import os, oci
+import psutil, oci, os, time
 from oci.config import validate_config
 from dotenv import load_dotenv
 
 load_dotenv()
-
-def print_row(bucket, fileName):
-    print " %-30s %-50s %-30s" % (bucket, fileName, "Downloaded")
-
-def create_dir(bucket_name):
-	folder = '/home/fernando/Documentos/OCI/{}'.format(bucket_name)
-	try:
-		os.makedirs(folder)
-	except OSError, exception:
-		if exception.errno == os.errno.EEXIST:
-			pass
-	except Exception, exception:
-		raise
-	return folder
-
-def download_file(namespace, bucket_name, file_name):
-	folder = create_dir(bucket_name)
-	file_path = '{}/{}'.format(folder, file_name)
-	file = objStgClient.get_object(namespace, bucket_name, file_name)
-	with open(file_path, 'wb') as f:
-		for chunk in file.data.raw.stream(1024 * 1024, decode_content=False):
-			f.write(chunk)
-	print_row(bucket.name, o.name)
 
 config = {
     "user": os.environ.get('authUserID'),
@@ -37,7 +14,43 @@ config = {
 
 namespace = os.environ.get('namespace')
 compartmentID = os.environ.get('compartmentID')
+local_path = '/home/fernando/Documentos/OCI/'
 
+def convert_ratio(ratio):
+	prefix = {}
+	unit_prefix = ('K', 'M', 'G', 'T', 'P')
+	for i, s in enumerate(unit_prefix):
+		prefix[s] = 1 << (i + 1) * 10
+	for s in reversed(unit_prefix):
+		if ratio >= prefix[s]:
+			return ('%.2f %s' % ((float(ratio) / prefix[s]), s))
+	return ('%.2f B' % ratio)
+
+def print_row(bucket, fileName, download_ratio):
+    print ("%-30s %-50s %-20s %-10s" % (bucket, fileName, "downloaded", download_ratio))
+
+def create_dir(bucket_name):
+	folder = '{}{}'.format(local_path, bucket_name)
+	try:
+		os.makedirs(folder, exist_ok=True)
+	except (Exception, OSError) as exception:
+		raise
+	return folder
+
+def download_file(namespace, bucket_name, file_name):
+	folder = create_dir(bucket_name)
+	file_path = '{}/{}'.format(folder, file_name)
+	download_before = psutil.net_io_counters().bytes_recv
+	file = objStgClient.get_object(namespace, bucket_name, file_name)
+	with open(file_path, 'wb') as f:
+		for content in file.data.raw.stream(1024 * 1024, decode_content=False):
+			f.write(content)
+		f.flush()
+	time.sleep(1)
+	download_after = psutil.net_io_counters().bytes_recv
+	download_ratio = download_after - download_before
+	print_row(bucket.name, o.name, convert_ratio(download_ratio))
+	
 validate_config(config)
 
 objStgClient = oci.object_storage.ObjectStorageClient(config)
