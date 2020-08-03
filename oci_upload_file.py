@@ -1,10 +1,12 @@
 import psutil, oci, os, time
-from oci.config import validate_config
 from dotenv import load_dotenv
-from multiprocessing import Process
+from datetime import date, datetime
 from glob import glob
+from multiprocessing import Process
+from oci.config import validate_config
 
 # gerar os arquivos de teste local: truncate -s 4k exemplo{1..1000}.oracle
+# configurar o limite de arq aberto pelo SO: ulimit -n 4096
 
 load_dotenv()
 
@@ -19,19 +21,18 @@ config = {
 namespace = os.environ.get('namespace')
 compartmentID = os.environ.get('compartmentID')
 local_path = '/home/fernando/Documentos/uploads/*.*'
-bucket = 'bucketLunes'
+bucket = 'aLunesFiesta'
 
 def upload_item(path):
     with open(path, "rb") as in_file:
         name = os.path.basename(path)
         objStgClient = oci.object_storage.ObjectStorageClient(config)
         objStgClient.put_object(namespace, bucket, name, in_file)
-        print("Upload de {} concluido com sucesso".format(name))
 
 validate_config(config)
 files = []
 
-print('Inicio do Upload')
+print('Inicio do Upload: {}'.format(datetime.now()))
 for file_path in glob(local_path):
     p = Process(target=upload_item, args=(file_path,))
     p.start()
@@ -39,3 +40,6 @@ for file_path in glob(local_path):
     
 for file in files:
     file.join()
+
+print('Total de Arquivos: {}'.format(len(files)))
+print('Fim do Upload: {}'.format(datetime.now()))
