@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from multiprocessing import Process
 from glob import glob
 
+# gerar os arquivos de teste local: truncate -s 4k exemplo{1..1000}.oracle
+
 load_dotenv()
 
 config = {
@@ -29,8 +31,8 @@ def upload_item(path):
 validate_config(config)
 files = []
 
+print('Inicio do Upload')
 for file_path in glob(local_path):
-    print("Starting upload for {}".format(file_path))
     p = Process(target=upload_item, args=(file_path,))
     p.start()
     files.append(p)
