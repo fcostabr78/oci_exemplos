@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: iad.ocir.io/idsvh8rxij5e/idsvh8rxij5e/nginx:v1
+        resources:
+          limits:
+            cpu: "0.5"
+          requests:
+            cpu: "0.1"
+        ports:
+        - containerPort: 80
+      nodeSelector:
+        name: pool1
